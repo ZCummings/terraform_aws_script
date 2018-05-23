@@ -2,12 +2,12 @@
 # Provider definition - using AWS
 provider "aws" {
     region = "us-east-1"
-    access_key = "AKIAJMP3NTFGMOUVBO4Q"
-    secret_key = "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"
+    access_key = "${AWS_ACCESS_KEY}"
+    secret_key = "${AWS_SECRET_KEY}"
 }
 
-# Creates a VPC for our miniproject instance(s)
-resource "aws_vpc" "miniproject" {
+# Creates a VPC for our project instance(s)
+resource "aws_vpc" "project" {
   cidr_block       = "10.0.0.0/16"
   enable_dns_hostnames = true
   tags {
@@ -16,10 +16,10 @@ resource "aws_vpc" "miniproject" {
 }
 
 # Creates an internet gateway for our VPC
-resource "aws_internet_gateway" "miniproject" {
-  vpc_id = "${aws_vpc.miniproject.id}"
+resource "aws_internet_gateway" "project" {
+  vpc_id = "${aws_vpc.project.id}"
   tags {
-    Name = "miniproject-igw"
+    Name = "project-igw"
   }
 }
 
@@ -27,20 +27,20 @@ resource "aws_internet_gateway" "miniproject" {
 resource "aws_subnet" "subnet" {
 	cidr_block = "10.0.1.0/24"
 	map_public_ip_on_launch = true
-	vpc_id = "${aws_vpc.miniproject.id}"
+	vpc_id = "${aws_vpc.project.id}"
 }
 
 # Sets up routing table from VPC to the internet gateway
 resource "aws_route" "route" {
-	route_table_id = "${aws_vpc.miniproject.main_route_table_id}"
+	route_table_id = "${aws_vpc.project.main_route_table_id}"
 	destination_cidr_block = "0.0.0.0/0"
-	gateway_id = "${aws_internet_gateway.miniproject.id}"
+	gateway_id = "${aws_internet_gateway.project.id}"
 }
 
 # Creates a security group for an elastic load balancer
-resource "aws_security_group" "miniproject_elb_sg" {
-  name = "miniproject-elb-sg"
-  vpc_id = "${aws_vpc.miniproject.id}"
+resource "aws_security_group" "project_elb_sg" {
+  name = "project-elb-sg"
+  vpc_id = "${aws_vpc.project.id}"
 
   ingress {
     protocol    = "tcp"
@@ -58,9 +58,9 @@ resource "aws_security_group" "miniproject_elb_sg" {
 }
 
 # Creates a security group for our instance(s)
-resource "aws_security_group" "miniproject-sg" {
-  name = "miniproject-sg"
-  vpc_id = "${aws_vpc.miniproject.id}"
+resource "aws_security_group" "project-sg" {
+  name = "project-sg"
+  vpc_id = "${aws_vpc.project.id}"
 
   # note to self - alter ssh access
 
@@ -115,10 +115,10 @@ EOF
 }
 
 # Create our EC2 instance(s) using an Amazon Linux AMI
-resource "aws_instance" "miniproject-ec2" {
+resource "aws_instance" "project-ec2" {
     ami = "ami-467ca739"
     count = "2"
-    security_groups = ["${aws_security_group.miniproject-sg.id}"]
+    security_groups = ["${aws_security_group.project-sg.id}"]
     subnet_id = "${aws_subnet.subnet.id}"
     iam_instance_profile = "${aws_iam_instance_profile.test_profile.name}"
     user_data = <<-EOF
@@ -133,22 +133,22 @@ resource "aws_instance" "miniproject-ec2" {
                 EOF
 
     instance_type = "t2.micro"
-    key_name      = "zc_miniproject_key"
+    key_name      = "project_key"
     tags {
-        Name = "Stelligent Miniproject"
-        Owner = "Zach Cummings"
+        Name = "Terraform Project"
+        Owner = "${OWNER}"
     }
 
   connection {
     user         = "ec2-user"
-    private_key  = "${file("~/.ssh/zc_miniproject_key.pem")}"
+    private_key  = "${file("~/.ssh/project_key.pem")}"
   }
 }
 
 # Creates an elastic load balancer
-resource "aws_elb" "miniproject_elb" {
-  name = "miniproject-elb"
-  security_groups = ["${aws_security_group.miniproject_elb_sg.id}"]
+resource "aws_elb" "project_elb" {
+  name = "project-elb"
+  security_groups = ["${aws_security_group.project_elb_sg.id}"]
   subnets = ["${aws_subnet.subnet.*.id}"]
 
   listener {
@@ -166,11 +166,11 @@ resource "aws_elb" "miniproject_elb" {
     timeout = 3
   }
 
-  instances = ["${aws_instance.miniproject-ec2.*.id}"]
+  instances = ["${aws_instance.project-ec2.*.id}"]
 
 
 }
 
 output "dns" {
-  value = "${aws_elb.miniproject_elb.dns_name}"
+  value = "${aws_elb.project_elb.dns_name}"
 }

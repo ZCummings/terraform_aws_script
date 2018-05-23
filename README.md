@@ -1,4 +1,4 @@
-# Stelligent Miniproject
+# Terraform Project
 
 ## Zach Cummings
 
@@ -23,7 +23,7 @@ a VPC, an Internet Gateway, associated subnets and routing, security groups, an 
 5. Please run '*terraform destroy*' after you are finished in order to obliterate the infrastucture built by this script
 	*NOTE: Failure to do so will lead to surprisingly high bills --> load balancers != cheap*
 
-### Lessons Learned
+### Lessons Learned ... So Far
 1. Terraform is great for setting up infrastructure but trying to configure servers using "user data" or other methods is inefficient. 
 2. The architecture here is very, very basic - but functional. Given more time with terraform, I would launch the instances into either an ASG (probably overkill) or 
 	multiple subnets to isolate single points of failure make the system a little more robust. Given a little more time, there's probably a Docker/ECS solution. 
