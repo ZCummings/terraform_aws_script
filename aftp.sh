@@ -5,7 +5,8 @@
 # 2 - AWS Command Line Tools (awscli) installed
 # 3 - Terraform v0.11+ installed
 # 4 - TFLint is installed (if on MacOS using homebrew -> 'brew tap wata727/tflint' then 'brew install tflint')
-# 5 - There is a TerraformAdmin user in AWS that has full admin permissions along with an AWS Key and Secret. 
+# 5 - You have a Ruby environment and Inspec is installed.
+# 6 - There is a TerraformAdmin user in AWS that has full admin permissions along with an AWS Key and Secret. 
 # 	  **NOTE**
 #     I do not expect to see a full admin terraform user in the wild. Following general best practices would suggest 
 #     we use TerraformBuilder and TerraformDestroyer roles that give a user the minimal necessary actions required to
@@ -21,7 +22,7 @@ echo "## Checking for dependencies ##"
 command -v aws >/dev/null 2>&1 || { echo "AWS Command Line Tools are required but not installed.  Aborting. Please install the AWS Command Line Tools." >&2; exit 1; }
 command -v terraform >/dev/null 2>&1 || { echo "Terraform is required but it's not installed.  Aborting. Please install Terraform." >&2; exit 1; }
 command -v tflint >/dev/null 2>&1 || { echo "TFLint is required but it's not installed.  Aborting. Please install TFLint." >&2; exit 1; }
-command -v inspec >/dev/null 2>&1 || { echo "Inspec is required but it's not installed.  Aborting. Please install TFLint." >&2; exit 1; }
+command -v inspec >/dev/null 2>&1 || { echo "Inspec is required but it's not installed.  Aborting. Please install Inspec." >&2; exit 1; }
 
 echo "## Building something AWSome ##"
 # look for an existing key and if not there, create one with the appropriate permissions
