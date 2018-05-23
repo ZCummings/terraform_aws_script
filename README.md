@@ -1,7 +1,5 @@
 # Terraform Project
 
-## Zach Cummings
-
 This project uses Terraform to build out simple infrastructure consisting of 
 a VPC, an Internet Gateway, associated subnets and routing, security groups, an Elastic Load Balancer, and two EC2 instances running Amazon's flavor of Linux with Apache serving out a single index page which displays "Automation for the People" in plain text.
 
